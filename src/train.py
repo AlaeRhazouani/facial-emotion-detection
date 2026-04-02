@@ -7,6 +7,8 @@ import wandb
 import yaml
 from src.dataset import load_config, get_dataloaders
 from src.model import EmotionCNN
+from src.evaluate import evaluate
+
 
 def load_config(config_path="configs/config.yaml"):
     with open(config_path, "r") as f:
