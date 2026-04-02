@@ -1,3 +1,4 @@
+import matplotlib
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -86,7 +87,7 @@ def overlay_heatmap(heatmap, original_image, alpha=0.4):
     heatmap_resized = np.array(heatmap_resized)
 
     # Apply colormap
-    colormap = cm.get_cmap("jet")
+    colormap = matplotlib.colormaps["jet"]
     heatmap_colored = colormap(heatmap_resized / 255.0)
     heatmap_colored = np.uint8(heatmap_colored[:, :, :3] * 255)
 
