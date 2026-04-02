@@ -1,12 +1,16 @@
 data:
   # local: "data/raw/fer2013.csv"
-  csv_path: "data/raw/fer2013.csv"
+  data_dir: "/kaggle/input/datasets/msambare/fer2013"
+  train_dir: "train"
+  test_dir: "test"
   num_classes: 7
   image_size: 48
   emotions: ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
-  test_split: "PrivateTest"
-  val_split: "PublicTest"
-  train_split: "Training"
+  mean: 0.5077
+  std: 0.2551
+  # test_split: "PrivateTest"
+  # val_split: "PublicTest"
+  # train_split: "Training"
 
 training:
   batch_size: 64
