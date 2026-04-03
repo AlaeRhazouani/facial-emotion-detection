@@ -2,6 +2,9 @@ import torch
 import numpy as np
 from PIL import Image
 from torchvision import transforms
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 import yaml
 
 
@@ -11,13 +14,27 @@ def load_config(config_path="configs/config.yaml"):
 
 
 def preprocess_image(image: Image.Image, config: dict) -> torch.Tensor:
-    """
-    Takes a PIL Image (any mode/size) and returns
-    a (1, 1, 48, 48) tensor ready for the model.
-    """
     size = config["data"]["image_size"]
     mean = config["data"]["mean"]
     std = config["data"]["std"]
+
+    # face detection with new mediapipe API
+    img_array = np.array(image.convert("RGB"))
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_array)
+
+    base_options = python.BaseOptions(model_asset_path="mediapipe_model/blaze_face_short_range.tflite")
+    options = vision.FaceDetectorOptions(base_options=base_options)
+    detector = vision.FaceDetector.create_from_options(options)
+
+    results = detector.detect(mp_image)
+
+    if results.detections:
+        bbox = results.detections[0].bounding_box
+        x, y = bbox.origin_x, bbox.origin_y
+        w, h = bbox.width, bbox.height
+        face = image.crop((x, y, x + w, y + h))
+    else:
+        face = image
 
     transform = transforms.Compose([
         transforms.Resize((size, size)),
@@ -26,8 +43,8 @@ def preprocess_image(image: Image.Image, config: dict) -> torch.Tensor:
         transforms.Normalize(mean=[mean], std=[std])
     ])
 
-    tensor = transform(image)
-    return tensor.unsqueeze(0)  # add batch dimension → (1, 1, 48, 48)
+    tensor = transform(face)
+    return tensor.unsqueeze(0)
 
 
 def decode_prediction(output: torch.Tensor, emotions: list) -> tuple:

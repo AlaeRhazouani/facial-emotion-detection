@@ -68,6 +68,8 @@ def main():
         # Predict
         with torch.no_grad():
             output = model(input_tensor)
+        
+        
 
         predicted_emotion, scores = decode_prediction(output, emotions)
         st.write("Raw probabilities:", torch.softmax(output, dim=1).tolist())
