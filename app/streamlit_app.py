@@ -5,7 +5,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import torch
 from PIL import Image
-import yaml
 
 from src.model import build_model
 from app.components.webcam import load_config, preprocess_image, decode_prediction
