@@ -1,0 +1,63 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+
+      - name: Download model checkpoint
+        env:
+          CHECKPOINT_URL: ${{ secrets.CHECKPOINT_URL }}
+        run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          python scripts/download_checkpoint.py
+
+      - name: Push to Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'EOF'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+
+          # Push all app code
+          api.upload_folder(
+              folder_path=".",
+              repo_id="fer-emotion-team/facial-emotion-recognition",
+              repo_type="space",
+              ignore_patterns=[
+                  ".git*",
+                  ".github*",
+                  "__pycache__",
+                  "*.pyc",
+                  ".env*",
+                  "notebooks/",
+                  "docs/",
+                  "tests/",
+                  "data/",
+              ],
+              commit_message="Deploy: ${{ github.sha }}"
+          )
+          print("Deployment complete!")
+          EOF

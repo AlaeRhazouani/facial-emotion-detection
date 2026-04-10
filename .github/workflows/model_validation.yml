@@ -1,0 +1,33 @@
+name: Model Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Download model checkpoint
+        env:
+          CHECKPOINT_URL: ${{ secrets.CHECKPOINT_URL }}
+        run: |
+          python scripts/download_checkpoint.py
+
+      - name: Validate model accuracy
+        run: |
+          python scripts/validate_accuracy.py
