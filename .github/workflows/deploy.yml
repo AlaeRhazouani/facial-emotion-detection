@@ -37,11 +37,31 @@ jobs:
         run: |
           python - <<'EOF'
           import os
+          import shutil
           from huggingface_hub import HfApi
 
           api = HfApi(token=os.environ["HF_TOKEN"])
 
-          # Push all app code
+          # Copy Dockerfile to root for HF Spaces
+          shutil.copy("docker/Dockerfile", "Dockerfile")
+
+          # Overwrite README.md with HF Spaces header
+          with open("README.md", "w") as f:
+              f.write("""---
+          title: Facial Emotion Recognition
+          emoji: 🎭
+          colorFrom: blue
+          colorTo: purple
+          sdk: docker
+          app_port: 8501
+          pinned: false
+          ---
+
+          # Facial Emotion Recognition
+          CNN-based facial emotion detection with Grad-CAM explainability.
+          """)
+
+          # Push everything to HF Space
           api.upload_folder(
               folder_path=".",
               repo_id="fer-emotion-team/facial-emotion-recognition",
@@ -56,6 +76,7 @@ jobs:
                   "docs/",
                   "tests/",
                   "data/",
+                  "hf_README.md",
               ],
               commit_message="Deploy: ${{ github.sha }}"
           )
