@@ -1,0 +1,38 @@
+data:
+  # local: "data/raw/"
+  data_dir: "/kaggle/input/datasets/msambare/fer2013"
+  train_dir: "train"
+  test_dir: "test"
+  num_classes: 7
+  image_size: 48
+  emotions: ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
+  # test_split: "PrivateTest"
+  # val_split: "PublicTest"
+  # train_split: "Training"
+  mean: 0.5077
+  std: 0.2551
+
+training:
+  batch_size: 64
+  epochs: 50
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  early_stopping_patience: 10
+  device: "cuda"
+
+augmentation:
+  random_horizontal_flip: true
+  random_rotation: 10
+  color_jitter: false
+
+wandb:
+  project: "facial-emotion-detection"
+  entity: null
+
+model:
+  architecture: "cnn_scratch"
+  dropout: 0.5
+
+paths:
+  checkpoint_dir: "models/"
+  results_dir: "docs/results/"
